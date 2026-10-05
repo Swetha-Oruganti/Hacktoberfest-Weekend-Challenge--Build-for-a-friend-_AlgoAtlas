@@ -7,7 +7,9 @@ const { spawn } = require('node:child_process');
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 4173);
 const MAX_BODY = 128 * 1024;
-const TIMEOUT_MS = 8000;
+// Give compiler startup (especially javac and Python) time on slower machines,
+// while still stopping accidental infinite loops in user programs.
+const TIMEOUT_MS = 20_000;
 const PYTHON = process.env.ALGOLATLAS_PYTHON || path.join(os.homedir(), '.cache', 'codex-runtimes', 'codex-primary-runtime', 'dependencies', 'python', 'python.exe');
 
 function run(command, args, cwd, stdin = '') {
@@ -17,7 +19,7 @@ function run(command, args, cwd, stdin = '') {
     const child = spawn(command, args, { cwd, windowsHide: true, shell: false });
     const timer = setTimeout(() => {
       child.kill();
-      reject(new Error('Execution timed out after 8 seconds.'));
+      reject(new Error(`Execution timed out after ${TIMEOUT_MS / 1000} seconds.`));
     }, TIMEOUT_MS);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
@@ -201,6 +203,7 @@ const server = http.createServer(async (request, response) => {
   fs.createReadStream(file).pipe(response);
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`AlgoAtlas server listening on port ${PORT}`);
+server.listen(PORT, '127.0.0.1', () => {
+  console.log(`AlgoAtlas local runner: http://127.0.0.1:${PORT}`);
+  console.log('Keep this terminal open while using Run. The server only listens on this computer.');
 });
