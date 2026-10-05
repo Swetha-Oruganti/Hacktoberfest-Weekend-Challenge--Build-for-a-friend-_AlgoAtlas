@@ -201,7 +201,6 @@ const server = http.createServer(async (request, response) => {
   fs.createReadStream(file).pipe(response);
 });
 
-server.listen(10000, '0.0.0.0', () => {
-  console.log(`AlgoAtlas local runner: http://127.0.0.1:${PORT}`);
-  console.log('Keep this terminal open while using Run. The server only listens on this computer.');
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`AlgoAtlas server listening on port ${PORT}`);
 });
